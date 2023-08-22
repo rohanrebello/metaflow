@@ -76,7 +76,11 @@ class CondaEnvironment(MetaflowEnvironment):
         if env_id is not None:
             return [
                 "echo 'Bootstrapping environment...'",
-                'python -m metaflow.plugins.conda.batch_bootstrap "%s" %s "%s"'
+                # We have to prevent the tracing module from loading,
+                # as the bootstrapping process uses the internal S3 client which would fail to import tracing
+                # due to the required dependencies being bundled into the conda environment,
+                # which is yet to be initialized at this point.
+                'BOOTSTRAPPING_CONDA_ENVIRONMENT=True python -m metaflow.plugins.conda.batch_bootstrap "%s" %s "%s"'
                 % (self.flow.name, env_id, datastore_type),
                 "echo 'Environment bootstrapped.'",
             ]
