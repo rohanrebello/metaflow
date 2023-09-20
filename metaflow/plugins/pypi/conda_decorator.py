@@ -84,13 +84,6 @@ class CondaStepDecorator(StepDecorator):
         self.environment = environment
         self.datastore = flow_datastore
 
-        # TODO: This code snippet can be done away with by altering the constructor of
-        #       MetaflowEnvironment. A good first-task exercise.
-        # Avoid circular import
-        from metaflow.plugins.datastores.local_storage import LocalStorage
-
-        environment.set_local_root(LocalStorage.get_datastore_root_from_config(logger))
-
         # Support flow-level decorator
         if "conda_base" in self.flow._flow_decorators:
             super_attributes = self.flow._flow_decorators["conda_base"][0].attributes

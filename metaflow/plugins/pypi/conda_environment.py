@@ -31,19 +31,15 @@ class CondaEnvironmentException(MetaflowException):
 class CondaEnvironment(MetaflowEnvironment):
     TYPE = "conda"
 
-    def __init__(self, flow):
+    def __init__(self, flow, echo):
+        super(CondaEnvironment, self).__init__(flow, echo)
         self.flow = flow
-
-    def set_local_root(self, local_root):
-        # TODO: Make life simple by passing echo to the constructor and getting rid of
-        # this method's invocation in the decorator
-        self.local_root = local_root
 
     def decospecs(self):
         # Apply conda decorator to manage the task execution lifecycle.
         return ("conda",) + super().decospecs()
 
-    def validate_environment(self, echo, datastore_type):
+    def validate_environment(self, datastore_type):
         self.datastore_type = datastore_type
 
         # Initialize necessary virtual environments for all Metaflow tasks.
@@ -54,7 +50,7 @@ class CondaEnvironment(MetaflowEnvironment):
         micromamba = Micromamba()
         self.solvers = {"conda": micromamba, "pypi": Pip(micromamba)}
 
-    def init_environment(self, echo):
+    def init_environment(self):
         # The implementation optimizes for latency to ensure as many operations can
         # be turned into cheap no-ops as feasible. Otherwise, we focus on maintaining
         # a balance between latency and maintainability of code without re-implementing
@@ -62,7 +58,7 @@ class CondaEnvironment(MetaflowEnvironment):
 
         # TODO: Introduce verbose logging
         #       https://github.com/Netflix/metaflow/issues/1494
-        echo("Bootstrapping virtual environment(s) ...")
+        self.echo("Bootstrapping virtual environment(s) ...")
 
         def environments(type_):
             seen = set()
