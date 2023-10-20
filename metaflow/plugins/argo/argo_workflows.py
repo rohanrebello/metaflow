@@ -622,6 +622,9 @@ class ArgoWorkflows(object):
             "metaflow/flow_name": self.flow.name,
         }
 
+        metaflow_version = self.environment.get_environment_info()
+        annotations["metaflow/version"] = json.dumps(metaflow_version)
+
         if self.parameters:
             annotations.update({"metaflow/parameters": json.dumps(self.parameters)})
 
